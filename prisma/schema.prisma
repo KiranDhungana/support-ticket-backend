@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String  @id @default(uuid())
+  email     String  @unique
+  name      String
+  picture   String
+  role      String  @default("user")
+  tickets   SupportTicket[]
+  createdAt DateTime @default(now())
+}
+
+model SupportTicket {
+  id             String   @id @default(uuid()) 
+  name           String
+  email          String
+  phone          String
+  location       String
+  availableTime  String
+  subject        String
+  description    String
+  createdAt      DateTime @default(now())
+
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  status         Int      @default(1) 
+}
+
+model PublicNotice {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    String
+  date        DateTime @default(now())
+  author      String
+  pdfUrl      String
+  fileSize    String
+  imageUrl    String?
+  publicId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Staff {
+  id         String   @id @default(uuid())
+  name       String
+  position   String
+  department String
+  email      String   @unique
+  phone      String?
+  location   String?
+  experience Int?
+  imageUrl   String?
+  bio        String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  category  String
+  priority  String
+  author    String
+  imageUrl  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model News {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  summary     String?
+  author      String
+  imageUrl    String?
+  isPublished Boolean  @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Job {
+  id          String   @id @default(uuid())
+  title       String
+  company     String
+  location    String
+  type        String   // Full-time, Part-time, Contract, Internship
+  category    String
+  salary      String
+  experience  String
+  description String
+  requirements String[] // Array of requirements
+  benefits    String[]  // Array of benefits
+  isRemote    Boolean  @default(false)
+  isUrgent    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  postedDate  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BoardMember {
+  id          String   @id @default(uuid())
+  name        String
+  position    String
+  district    String?
+  email       String?
+  phone       String?
+  imageUrl    String?
+  bio         String?
+  termStart   DateTime?
+  termEnd     DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
