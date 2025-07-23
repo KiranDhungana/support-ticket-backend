@@ -66,7 +66,8 @@ export const getAnnouncementById = async (req: Request, res: Response) => {
     });
 
     if (!announcement) {
-      return res.status(404).json({ error: 'Announcement not found' });
+      res.status(404).json({ error: 'Announcement not found' });
+      return;
     }
 
     res.json(announcement);
@@ -91,9 +92,10 @@ export const createAnnouncement = async (req: Request, res: Response) => {
 
     // Validate required fields
     if (!title || !content || !category || !priority || !author) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Title, content, category, priority, and author are required' 
       });
+      return;
     }
 
     const announcement = await prisma.announcement.create({
@@ -135,7 +137,8 @@ export const updateAnnouncement = async (req: Request, res: Response) => {
     });
 
     if (!existingAnnouncement) {
-      return res.status(404).json({ error: 'Announcement not found' });
+      res.status(404).json({ error: 'Announcement not found' });
+      return;
     }
 
     const announcement = await prisma.announcement.update({
@@ -169,7 +172,8 @@ export const deleteAnnouncement = async (req: Request, res: Response) => {
     });
 
     if (!existingAnnouncement) {
-      return res.status(404).json({ error: 'Announcement not found' });
+      res.status(404).json({ error: 'Announcement not found' });
+      return;
     }
 
     await prisma.announcement.delete({

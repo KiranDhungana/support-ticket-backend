@@ -87,7 +87,8 @@ export const getJobById = async (req: Request, res: Response) => {
     });
 
     if (!job) {
-      return res.status(404).json({ error: 'Job not found' });
+      res.status(404).json({ error: 'Job not found' });
+      return;
     }
 
     res.json(job);
@@ -117,7 +118,8 @@ export const createJob = async (req: Request, res: Response) => {
 
     // Validate required fields
     if (!title || !company || !location || !type || !category || !salary || !experience || !description) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
     }
 
     const job = await prisma.job.create({
@@ -170,7 +172,8 @@ export const updateJob = async (req: Request, res: Response) => {
     });
 
     if (!existingJob) {
-      return res.status(404).json({ error: 'Job not found' });
+      res.status(404).json({ error: 'Job not found' });
+      return;
     }
 
     const job = await prisma.job.update({
@@ -210,7 +213,8 @@ export const deleteJob = async (req: Request, res: Response) => {
     });
 
     if (!existingJob) {
-      return res.status(404).json({ error: 'Job not found' });
+      res.status(404).json({ error: 'Job not found' });
+      return;
     }
 
     await prisma.job.delete({
@@ -234,7 +238,8 @@ export const toggleJobStatus = async (req: Request, res: Response) => {
     });
 
     if (!existingJob) {
-      return res.status(404).json({ error: 'Job not found' });
+      res.status(404).json({ error: 'Job not found' });
+      return;
     }
 
     const job = await prisma.job.update({

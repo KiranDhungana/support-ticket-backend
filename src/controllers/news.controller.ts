@@ -99,7 +99,8 @@ export const getNewsById = async (req: Request, res: Response) => {
     });
 
     if (!news) {
-      return res.status(404).json({ error: 'News not found' });
+      res.status(404).json({ error: 'News not found' });
+      return;
     }
 
     res.json(news);
@@ -123,9 +124,10 @@ export const createNews = async (req: Request, res: Response) => {
 
     // Validate required fields
     if (!title || !content || !author) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Title, content, and author are required' 
       });
+      return;
     }
 
     const newsData: any = {
@@ -172,7 +174,8 @@ export const updateNews = async (req: Request, res: Response) => {
     });
 
     if (!existingNews) {
-      return res.status(404).json({ error: 'News not found' });
+      res.status(404).json({ error: 'News not found' });
+      return;
     }
 
     const updateData: any = {
@@ -214,7 +217,8 @@ export const deleteNews = async (req: Request, res: Response) => {
     });
 
     if (!existingNews) {
-      return res.status(404).json({ error: 'News not found' });
+      res.status(404).json({ error: 'News not found' });
+      return;
     }
 
     await prisma.news.delete({
@@ -240,7 +244,8 @@ export const togglePublishStatus = async (req: Request, res: Response) => {
     });
 
     if (!existingNews) {
-      return res.status(404).json({ error: 'News not found' });
+      res.status(404).json({ error: 'News not found' });
+      return;
     }
 
     const updateData: any = {

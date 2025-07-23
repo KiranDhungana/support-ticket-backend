@@ -62,7 +62,8 @@ export const getStaffById = async (req: Request, res: Response) => {
     });
 
     if (!staff) {
-      return res.status(404).json({ error: 'Staff member not found' });
+      res.status(404).json({ error: 'Staff member not found' });
+      return;
     }
 
     res.json(staff);
@@ -89,9 +90,10 @@ export const createStaff = async (req: Request, res: Response) => {
 
     // Validate required fields
     if (!name || !position || !department || !email) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Name, position, department, and email are required' 
       });
+      return;
     }
 
     // Check if email already exists
@@ -100,7 +102,8 @@ export const createStaff = async (req: Request, res: Response) => {
     });
 
     if (existingStaff) {
-      return res.status(400).json({ error: 'Email already exists' });
+      res.status(400).json({ error: 'Email already exists' });
+      return;
     }
 
     const staff = await prisma.staff.create({
@@ -146,7 +149,8 @@ export const updateStaff = async (req: Request, res: Response) => {
     });
 
     if (!existingStaff) {
-      return res.status(404).json({ error: 'Staff member not found' });
+      res.status(404).json({ error: 'Staff member not found' });
+      return;
     }
 
     // Check if email is being changed and if it already exists
@@ -159,7 +163,8 @@ export const updateStaff = async (req: Request, res: Response) => {
       });
 
       if (emailExists) {
-        return res.status(400).json({ error: 'Email already exists' });
+        res.status(400).json({ error: 'Email already exists' });
+        return;
       }
     }
 
@@ -196,7 +201,8 @@ export const deleteStaff = async (req: Request, res: Response) => {
     });
 
     if (!existingStaff) {
-      return res.status(404).json({ error: 'Staff member not found' });
+      res.status(404).json({ error: 'Staff member not found' });
+      return;
     }
 
     await prisma.staff.delete({

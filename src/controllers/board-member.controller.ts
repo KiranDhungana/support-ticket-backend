@@ -23,7 +23,8 @@ export const getBoardMemberById = async (req: Request, res: Response) => {
     });
     
     if (!boardMember) {
-      return res.status(404).json({ error: 'Board member not found' });
+      res.status(404).json({ error: 'Board member not found' });
+      return;
     }
     
     res.json(boardMember);
