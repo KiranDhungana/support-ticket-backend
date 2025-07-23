@@ -18,7 +18,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ['http://82.25.95.230', 'http://82.25.95.230/', 'http://localhost:5173'],
+    origin: ['http://82.25.95.230.nip.io', 'http://82.25.95.230.nip.io/', 'http://localhost:5173'],
     credentials: true,
   })
 );
