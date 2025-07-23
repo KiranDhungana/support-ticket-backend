@@ -18,12 +18,17 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ['http://82.25.95.230', 'http://82.25.95.230/', 'http://localhost:5173'],
     credentials: true,
   })
 );
 
 app.use(express.json());
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Server is running' });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tickets", ticketRoutes);
