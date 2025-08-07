@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 export const createTicket = async (req: any, res: any) => {
   const { name, email, phone, location, availableTime, subject, description } = req.body;
