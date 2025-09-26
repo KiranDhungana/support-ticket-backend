@@ -210,7 +210,8 @@ router.delete('/:public_id', authenticate, async (req, res) => {
     });
   } catch (error) {
     console.error('Delete error:', error);
-    res.status(500).json({ error: 'Failed to delete file', details: error.message });
+    const message = (error as any)?.message || 'Unknown error';
+    res.status(500).json({ error: 'Failed to delete file', details: message });
   }
 });
 
@@ -224,7 +225,8 @@ router.get('/banners', async (req, res) => {
     res.json({ success: true, data: images });
   } catch (error) {
     console.error('Error in /banners endpoint:', error);
-    res.status(500).json({ success: false, error: 'Failed to list banner images', details: error.message });
+    const message = (error as any)?.message || 'Unknown error';
+    res.status(500).json({ success: false, error: 'Failed to list banner images', details: message });
   }
 });
 
@@ -238,7 +240,8 @@ router.get('/board-minutes', async (req, res) => {
     res.json({ success: true, data: pdfs });
   } catch (error) {
     console.error('Error in /board-minutes endpoint:', error);
-    res.status(500).json({ success: false, error: 'Failed to list board minutes PDFs', details: error.message });
+    const message = (error as any)?.message || 'Unknown error';
+    res.status(500).json({ success: false, error: 'Failed to list board minutes PDFs', details: message });
   }
 });
 
@@ -251,7 +254,8 @@ router.get('/pdf-url/:public_id', async (req, res) => {
     res.json({ success: true, url: signedUrl });
   } catch (error) {
     console.error('Error generating signed URL:', error);
-    res.status(500).json({ success: false, error: 'Failed to generate signed URL', details: error.message });
+    const message = (error as any)?.message || 'Unknown error';
+    res.status(500).json({ success: false, error: 'Failed to generate signed URL', details: message });
   }
 });
 
