@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { uploadImage, uploadPDF, deleteFile, formatFileSize } from '../utils/cloudinary';
+import { uploadImage, uploadPDF, deleteFile, formatFileSize, listImagesInFolder, listPDFsInFolder, getSignedPDFUrl } from '../utils/cloudinary';
 import { authenticate } from '../middleware/auth.middleware';
 
 const router = express.Router();
@@ -197,7 +197,11 @@ router.delete('/:public_id', authenticate, async (req, res) => {
     const { public_id } = req.params;
     const resource_type = req.query.resource_type as 'image' | 'raw' || 'image';
     
+    console.log(`Attempting to delete file with public_id: ${public_id}, resource_type: ${resource_type}`);
+    
     const result = await deleteFile(public_id, resource_type);
+    
+    console.log(`Delete result:`, result);
     
     res.json({
       success: true,
@@ -205,7 +209,49 @@ router.delete('/:public_id', authenticate, async (req, res) => {
       data: result
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete file' });
+    console.error('Delete error:', error);
+    res.status(500).json({ error: 'Failed to delete file', details: error.message });
+  }
+});
+
+// Public endpoint: List banner images from Cloudinary folder
+router.get('/banners', async (req, res) => {
+  try {
+    const folder = (req.query.folder as string) || 'banners';
+    console.log(`Fetching images from folder: ${folder}`);
+    const images = await listImagesInFolder(folder);
+    console.log(`Found ${images.length} images`);
+    res.json({ success: true, data: images });
+  } catch (error) {
+    console.error('Error in /banners endpoint:', error);
+    res.status(500).json({ success: false, error: 'Failed to list banner images', details: error.message });
+  }
+});
+
+// Public endpoint: List board minutes PDFs from Cloudinary folder
+router.get('/board-minutes', async (req, res) => {
+  try {
+    const folder = (req.query.folder as string) || 'board-minutes';
+    console.log(`Fetching PDFs from folder: ${folder}`);
+    const pdfs = await listPDFsInFolder(folder);
+    console.log(`Found ${pdfs.length} PDFs`);
+    res.json({ success: true, data: pdfs });
+  } catch (error) {
+    console.error('Error in /board-minutes endpoint:', error);
+    res.status(500).json({ success: false, error: 'Failed to list board minutes PDFs', details: error.message });
+  }
+});
+
+// Get signed URL for PDF access
+router.get('/pdf-url/:public_id', async (req, res) => {
+  try {
+    const { public_id } = req.params;
+    console.log(`Generating signed URL for PDF: ${public_id}`);
+    const signedUrl = await getSignedPDFUrl(public_id);
+    res.json({ success: true, url: signedUrl });
+  } catch (error) {
+    console.error('Error generating signed URL:', error);
+    res.status(500).json({ success: false, error: 'Failed to generate signed URL', details: error.message });
   }
 });
 

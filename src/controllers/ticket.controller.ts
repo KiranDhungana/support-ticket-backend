@@ -49,16 +49,58 @@ export const getTicketById = async (req: any, res: any) => {
 
 export const updateTicket = async (req: any, res: any) => {
   const userId = req.user.id;
+  const userRole = req.user.role;
   const { id } = req.params;
   const { name, email, phone, location, availableTime, subject, description } = req.body;
 
   try {
-    const ticket = await prisma.supportTicket.updateMany({
-      where: { id, userId },
+    // Fetch existing ticket to check ownership and to get owner's contact
+    const existing = await prisma.supportTicket.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ message: "Ticket not found." });
+    }
+
+    // Non-admins can only edit their own ticket
+    if (userRole !== "admin" && existing.userId !== userId) {
+      return res.status(403).json({ message: "Unauthorized to update this ticket." });
+    }
+
+    // Proceed with update (admins can update any ticket)
+    await prisma.supportTicket.update({
+      where: { id },
       data: { name, email, phone, location, availableTime, subject, description },
     });
 
-    if (ticket.count === 0) return res.status(404).json({ message: "Ticket not found or unauthorized." });
+    // Notify ticket owner if an admin edited the ticket (best-effort)
+    if (userRole === "admin") {
+      const ownerEmail = existing.email;
+      if (ownerEmail) {
+        try {
+          // Lazy require to avoid hard dependency if not installed
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const nodemailer = require("nodemailer");
+          const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, MAIL_FROM } = process.env as any;
+          if (SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && MAIL_FROM) {
+            const transporter = nodemailer.createTransport({
+              host: SMTP_HOST,
+              port: Number(SMTP_PORT),
+              secure: Number(SMTP_PORT) === 465,
+              auth: { user: SMTP_USER, pass: SMTP_PASS },
+            });
+
+            await transporter.sendMail({
+              from: MAIL_FROM,
+              to: ownerEmail,
+              subject: `Your support ticket ${id} was updated by admin`,
+              text: `Hello ${existing.name || ""},\n\nYour support ticket (ID: ${id}) has been updated by an administrator. If you did not request this change or have questions, please reply to this email.\n\nThank you.`,
+            });
+          }
+        } catch (e: any) {
+          // Non-blocking failure; log and continue
+          console.warn("Admin edit notification email not sent:", e?.message || e);
+        }
+      }
+    }
 
     res.json({ message: "Ticket updated successfully." });
   } catch (error: any) {

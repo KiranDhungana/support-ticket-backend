@@ -74,9 +74,11 @@ export const uploadPDF = async (file: any, folder: string = 'documents') => {
 // Delete function
 export const deleteFile = async (public_id: string, resource_type: 'image' | 'raw' = 'image') => {
   try {
+    console.log(`Cloudinary delete: public_id=${public_id}, resource_type=${resource_type}`);
     const result = await cloudinary.uploader.destroy(public_id, {
       resource_type: resource_type
     });
+    console.log(`Cloudinary delete result:`, result);
     return result;
   } catch (error) {
     console.error('Error deleting file from Cloudinary:', error);
@@ -92,3 +94,63 @@ export const formatFileSize = (bytes: number): string => {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }; 
+
+// List images from a Cloudinary folder
+export const listImagesInFolder = async (folder: string) => {
+  try {
+    const results = await cloudinary.search
+      .expression(`folder:${folder} AND resource_type:image`)
+      .sort_by('public_id', 'asc')
+      .max_results(100)
+      .execute();
+
+    return (results.resources || []).map((r: any) => ({
+      url: r.secure_url,
+      public_id: r.public_id,
+      format: r.format,
+      bytes: r.bytes,
+      width: r.width,
+      height: r.height,
+    }));
+  } catch (error) {
+    console.error('Error listing images from Cloudinary:', error);
+    throw new Error('Failed to list images');
+  }
+};
+
+// List PDFs from a Cloudinary folder
+export const listPDFsInFolder = async (folder: string) => {
+  try {
+    const results = await cloudinary.search
+      .expression(`folder:${folder} AND resource_type:raw`)
+      .sort_by('public_id', 'asc')
+      .max_results(100)
+      .execute();
+
+    return (results.resources || []).map((r: any) => ({
+      url: r.secure_url,
+      public_id: r.public_id,
+      format: r.format,
+      bytes: r.bytes,
+      created_at: r.created_at,
+    }));
+  } catch (error) {
+    console.error('Error listing PDFs from Cloudinary:', error);
+    throw new Error('Failed to list PDFs');
+  }
+};
+
+// Generate signed URL for PDF access
+export const getSignedPDFUrl = async (public_id: string) => {
+  try {
+    const signedUrl = cloudinary.url(public_id, {
+      resource_type: 'raw',
+      sign_url: true,
+      expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour expiry
+    });
+    return signedUrl;
+  } catch (error) {
+    console.error('Error generating signed URL:', error);
+    throw new Error('Failed to generate signed URL');
+  }
+};

@@ -12,6 +12,7 @@ import newsRoutes from "./routes/news.routes";
 import jobRoutes from "./routes/job.routes";
 import boardMemberRoutes from "./routes/board-member.routes";
 import calendarRoutes from "./routes/calendar.routes";
+import settingRoutes from "./routes/setting.routes";
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ['http://82.25.95.230.nip.io', 'http://82.25.95.230.nip.io/', 'http://localhost:5173'],
+    origin: ['http://82.25.95.230.nip.io', 'http://82.25.95.230.nip.io/'],
     credentials: true,
   })
 );
@@ -42,5 +43,6 @@ app.use("/api/news", newsRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/board-members", boardMemberRoutes);
 app.use("/api/calendar", calendarRoutes);
+app.use("/api/settings", settingRoutes);
 
 export default app;
